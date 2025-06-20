@@ -1,0 +1,17 @@
+FROM ollama/ollama:latest
+
+# Install Python tooling
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip && \
+    pip install --no-cache-dir streamlit ollama
+
+# Pre-pull the model to avoid cold start
+RUN ollama pull llama3.2
+
+WORKDIR /app
+COPY requirements.txt app.py ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8080
+CMD ["bash", "-c", "ollama serve & streamlit run app.py --server.port 8080 --server.address 0.0.0.0"]
+
